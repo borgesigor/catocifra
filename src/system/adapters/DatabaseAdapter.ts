@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import IDatabase, { Create, Delete, FindMany, FindUnique, Update } from './dto/IDatabase'
 
 // const dbOptions = {
 //   host: "localhost",
@@ -7,8 +8,6 @@ import { Client } from 'pg'
 //   user: "postgres",
 //   password: "2121"
 // }
-
-import IDatabase, { Create, Delete, FindMany, FindUnique, Update } from './dto/IDatabase'
 
 class DatabaseAdapter implements IDatabase{
   private db: Client

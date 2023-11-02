@@ -1,12 +1,13 @@
 import Cifra from "../../core/entity/Cifra";
 import CifraUseCases from "../../core/usecases/CifraUseCases";
-import IDatabase, { FindMany } from '../context/IDatabaseContext'
+import { CifraUpdaterDTO } from "../dtos/CifraDTO";
+import IDatabaseContext, { FindMany } from '../context/IDatabaseContext'
 
 const TableName = "Cifra"
 
 class CifraRepository implements CifraUseCases{
   constructor(
-    private database: IDatabase
+    private database: IDatabaseContext
   ){}
 
   async create(cifra: Cifra): Promise<void>{
@@ -29,7 +30,7 @@ class CifraRepository implements CifraUseCases{
     return await this.database.findUnique(TableName, { where: { id } }) as Cifra;
   }
 
-  async update(cifra: Cifra): Promise<void>{
+  async update(cifra: CifraUpdaterDTO): Promise<void>{
     await this.database.update(TableName, {
       where: {
         id: cifra.id

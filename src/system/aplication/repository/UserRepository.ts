@@ -1,12 +1,13 @@
 import User from '../../core/entity/User'
 import UserUseCases from '../../core/usecases/UserUseCases';
-import IDatabase, { FindMany } from '../context/IDatabaseContext'
+import { UserUpdaterDTO } from '../dtos/UserDTO';
+import IDatabaseContext, { FindMany } from '../context/IDatabaseContext'
 
 const TableName = "User"
 
 class UserRepository implements UserUseCases{
   constructor(
-    private database: IDatabase
+    private database: IDatabaseContext
   ){}
 
   async create(user: User): Promise<void>{
@@ -29,7 +30,7 @@ class UserRepository implements UserUseCases{
     return await this.database.findUnique("Cifra", { where: { id } }) as User;
   }
 
-  async update(user: User): Promise<void>{
+  async update(user: UserUpdaterDTO): Promise<void>{
     await this.database.update(TableName, {
       where: {
         id: user.id

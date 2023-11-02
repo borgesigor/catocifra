@@ -1,7 +1,7 @@
 import CifraRepository from "../../aplication/repository/CifraRepository";
 import IUUIDContext from "../../aplication/context/IUUIDContext";
 import IDatabasebaseContext from "../../aplication/context/IDatabaseContext"
-import { CifraCreatorDTO, CifraUpdaterDTO } from "../dtos/CifraDTO";
+import { CifraCreatorDTO, CifraUpdaterDTO } from "../../aplication/dtos/CifraDTO";
 
 export default class CifraService{
   constructor(
@@ -26,8 +26,7 @@ export default class CifraService{
       id: cifra.id,
       title: cifra.title,
       artist: cifra.artist,
-      content: cifra.content,
-      createdAt: new Date().toISOString()
+      content: cifra.content
     })
   }
 

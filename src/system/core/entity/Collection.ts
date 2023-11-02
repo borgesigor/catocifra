@@ -5,7 +5,7 @@ interface Collection{
   id: String;
   name: String
   authorId: String;
-  createdAt: Date;
+  createdAt: String;
 }
 
 export interface CollectionCifras{

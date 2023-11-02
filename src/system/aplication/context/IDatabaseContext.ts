@@ -27,12 +27,10 @@ export interface Delete{
   where: Object,
 }
 
-interface DatabaseContext {
+export default interface IDatabaseContext {
   create(table: String, args: Create): Promise<Object>;
   findUnique(table: String, args: FindUnique): Promise<Object>;
   findMany(table: String, args: FindMany): Promise<Object>;
   update(table: String, args: Update): Promise<Object>;
   delete(table: String, args: Delete): Promise<Object>;
 }
-
-export default DatabaseContext
