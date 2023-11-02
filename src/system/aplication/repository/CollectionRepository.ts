@@ -1,6 +1,6 @@
 import Collection from "../../core/entity/Collection";
 import CollectionUseCases from "../../core/usecases/CollectionUseCases"
-import IDatabase, { FindMany } from "../adapters/IDatabaseContext";
+import IDatabase, { FindMany } from "../context/IDatabaseContext";
 
 const TableName = "Collection"
 

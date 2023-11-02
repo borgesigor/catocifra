@@ -1,12 +1,12 @@
 import Cifra from "../../core/entity/Cifra";
 import CifraUseCases from "../../core/usecases/CifraUseCases";
-import IDatabaseContext, { FindMany, FindUnique } from '../../aplication/adapters/IDatabaseContext'
+import IDatabase, { FindMany } from '../context/IDatabaseContext'
 
 const TableName = "Cifra"
 
 class CifraRepository implements CifraUseCases{
   constructor(
-    private database: IDatabaseContext
+    private database: IDatabase
   ){}
 
   async create(cifra: Cifra): Promise<void>{

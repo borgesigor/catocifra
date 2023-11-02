@@ -1,11 +1,11 @@
 import CifraRepository from "../../aplication/repository/CifraRepository";
-import IUUIDGenerator from "../../aplication/adapters/IUUIDGenerator";
-import IDatabasebaseContext from "../../aplication/adapters/IDatabaseContext"
+import IUUIDContext from "../../aplication/context/IUUIDContext";
+import IDatabasebaseContext from "../../aplication/context/IDatabaseContext"
 import { CifraCreatorDTO, CifraUpdaterDTO } from "../dtos/CifraDTO";
 
 export default class CifraService{
   constructor(
-    private uuid: IUUIDGenerator,
+    private uuid: IUUIDContext,
     private database: IDatabasebaseContext
   ){}
 
@@ -35,7 +35,5 @@ export default class CifraService{
     // checagens
     this.cifraRepository.delete(id);
   }
-
-
 
 }

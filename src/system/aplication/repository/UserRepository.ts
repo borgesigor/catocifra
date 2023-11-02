@@ -1,6 +1,6 @@
 import User from '../../core/entity/User'
 import UserUseCases from '../../core/usecases/UserUseCases';
-import IDatabase, { FindMany } from '../adapters/IDatabaseContext'
+import IDatabase, { FindMany } from '../context/IDatabaseContext'
 
 const TableName = "User"
 
