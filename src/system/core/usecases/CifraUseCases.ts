@@ -1,10 +1,9 @@
 import Cifra from '../entity/Cifra';
-import FindArguments from '../utility/FindArguments'
 
 interface CifraUseCases{
   create: (cifra: Cifra) => Promise<void>;
-  findUnique: (id: String) => Promise<Object>;
-  findMany: (page: number, maxResults?: number) => Promise<Object[]>;
+  findAll: (args: Object) => Promise<Cifra[]>;
+  findById: (id: String) => Promise<Cifra>;
   update: (cifra: Cifra) => Promise<void>;
   delete: (id: String) => Promise<void>;
 }

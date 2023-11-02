@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import IDatabaseContext, { Create, Delete, FindMany, FindUnique, Update } from '../../aplication/adapters/IDatabaseContext'
+import IDatabaseContext, { Create, Delete, FindMany, FindUnique, Update } from '../aplication/adapters/IDatabaseContext'
 
 const dbOptions = {
   host: "localhost",

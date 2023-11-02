@@ -1,8 +1,5 @@
 import { v4 as uuid } from "uuid";
-
-export interface IUUIDGenerator{
-  generate(): String;
-}
+import IUUIDGenerator from "../aplication/adapters/IUUIDGenerator";
 
 export default class UUIDGeneratorAdapter implements IUUIDGenerator{
   private uuid: String;

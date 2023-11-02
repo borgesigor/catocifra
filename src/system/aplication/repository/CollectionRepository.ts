@@ -1,74 +1,51 @@
 import Collection from "../../core/entity/Collection";
 import CollectionUseCases from "../../core/usecases/CollectionUseCases"
-import IDatabase from "../adapters/IDatabaseContext";
-import FindArguments  from '../../core/utility/FindArguments'
-import Paginator from "../helpers/SQLPagination";
+import IDatabase, { FindMany } from "../adapters/IDatabaseContext";
 
-const tableName = "Collection"
+const TableName = "Collection"
 
 class CollectionRepository implements CollectionUseCases{
   constructor(
     private database: IDatabase
   ){}
 
-  async create(args: Collection): Promise<void>{
-    const query = `
-      INSERT INTO "${tableName}"(id, name, author, createdAt) 
-      VALUES('${args.id}', '${args.name}', '${args.authorId}', '${args.createdAt}')
-    `
-    await this.database.rawQuery(query);
+  async create(collection: Collection): Promise<void>{
+    await this.database.create(TableName, {
+      data: {
+        id: collection.id,
+        name: collection.name,
+        authorId: collection.authorId,
+        createdAt: collection.createdAt
+      }
+    })
   }
 
-  async read(id: String): Promise<Object>{
-    const query = `
-      SELECT * FROM "${tableName}" 
-      WHERE id=${id}
-    `
-    let result = await this.database.rawQuery(query);
-    return result;
+  async findAll(args: FindMany): Promise<Collection[]>{ 
+    return await this.database.findMany(TableName, args) as Collection[];
   }
 
-  async update(args: Collection): Promise<void>{
-    const query = `
-      UPDATE "${tableName}" 
-      SET 
-      name=${args.name},
-      author=${args.authorId}
-      WHERE
-      id=${args.id}
-    `
-    await this.database.rawQuery(query);
+  async findById(id: String): Promise<Collection>{
+    return await this.database.findUnique("Cifra", { where: { id } }) as Collection;
+  }
+
+  async update(collection: Collection): Promise<void>{
+    await this.database.update(TableName, {
+      where: {
+        id: collection.id
+      },
+      data: {
+        name: collection.name,
+        authorId: collection.authorId
+      }
+    })
   }
 
   async delete(id: String): Promise<void>{
-    const query = `
-      DELETE FROM "${tableName}"
-      WHERE
-      id=${id}
-    `
-    await this.database.rawQuery(query);
-  }
-
-  async findByUsername(args: FindArguments): Promise<Object[]>{
-    const query = `
-      SELECT * FROM 
-      "${tableName}"
-      WHERE
-      authorId=${args.query}
-    `
-    const result = await this.database.rawQuery(query);
-    return result as Object[]
-  }
-
-  async findById(args: FindArguments): Promise<Object>{
-    const query = `
-      SELECT * FROM
-      "${tableName}"
-      WHERE
-      id=${args.query}
-    `
-    const result = await this.database.rawQuery(query);
-    return result as Object
+    await this.database.delete(TableName, {
+      where: {
+        id
+      },
+    })
   }
 }
 

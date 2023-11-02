@@ -1,13 +1,11 @@
 import Collection from "../entity/Collection";
-import FindArguments from "../utility/FindArguments"
 
-interface CifraUseCases{
+interface CollectionUseCases{
   create: (collection: Collection) => Promise<void>;
-  read: (id: String) => Promise<Object>;
+  findAll: (args: Object) => Promise<Collection[]>;
+  findById: (id: String) => Promise<Collection>;
   update: (collection: Collection) => Promise<void>;
   delete: (id: String) => Promise<void>;
-  findByUsername: (args: FindArguments) => Promise<Object[]>;
-  findById: (args: FindArguments) => Promise<Object>;
 }
 
-export default CifraUseCases;
+export default CollectionUseCases;
