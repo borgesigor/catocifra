@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import IDatabaseContext, { Create, Delete, FindMany, FindUnique, Update } from '../aplication/adapters/IDatabaseContext'
+import IDatabase, { Create, Delete, FindMany, FindUnique, Update } from './dto/IDatabase'
 
 const dbOptions = {
   host: "localhost",
@@ -9,7 +9,7 @@ const dbOptions = {
   password: "2121"
 }
 
-class DatabaseAdapter implements IDatabaseContext{
+class DatabaseAdapter implements IDatabase{
   private db: Client;
 
   constructor() {
