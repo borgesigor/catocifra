@@ -11,6 +11,8 @@
   "author": "Igor Borges",
   "license": "ISC",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.4",
+    "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",
     "puppeteer": "^21.4.1",
     "uuid": "^9.0.1"

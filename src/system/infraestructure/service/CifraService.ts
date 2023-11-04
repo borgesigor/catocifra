@@ -9,20 +9,22 @@ export default class CifraService{
     private database: IDatabasebaseContext
   ){}
 
-  private cifraRepository: CifraRepository = new CifraRepository(this.database);
+  private cifra: CifraRepository = new CifraRepository(this.database);
 
   async create(cifra: CifraCreatorDTO){
-    this.cifraRepository.create({
+    const result = this.cifra.create({
       id: this.uuid.generate(),
       title: cifra.title,
       artist: cifra.artist,
       content: cifra.content,
       createdAt: new Date().toISOString()
-    });
+    })
+    console.log(result)
+    return true
   }
 
   async update(cifra: CifraUpdaterDTO){
-    this.cifraRepository.update({
+    this.cifra.update({
       id: cifra.id,
       title: cifra.title,
       artist: cifra.artist,
@@ -32,7 +34,7 @@ export default class CifraService{
 
   async delete(id: String){
     // checagens
-    this.cifraRepository.delete(id);
+    this.cifra.delete(id);
   }
 
 }

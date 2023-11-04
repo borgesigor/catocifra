@@ -1,18 +1,18 @@
 import { Client } from 'pg'
 import IDatabase, { Create, Delete, FindMany, FindUnique, Update } from './dto/IDatabase'
 
-// const dbOptions = {
-//   host: "localhost",
-//   port: 5432,
-//   database: "Cifras",
-//   user: "postgres",
-//   password: "2121"
-// }
+const dbOptions = {
+  host: "localhost",
+  port: 5432,
+  database: "Cifras",
+  user: "postgres",
+  password: "2121"
+}
 
 class DatabaseAdapter implements IDatabase{
   private db: Client
 
-  constructor(dbOptions: Object) {
+  constructor() {
     this.db = new Client(dbOptions)
   }
 

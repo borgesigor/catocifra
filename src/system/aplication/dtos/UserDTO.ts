@@ -10,3 +10,9 @@ export interface UserUpdaterDTO{
   username: String,
   password: String
 }
+
+export interface UserDeleterDTO{
+  id: String,
+  username: String,
+  password: String
+}

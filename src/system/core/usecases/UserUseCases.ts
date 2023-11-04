@@ -2,8 +2,8 @@ import User from "../entity/User";
 
 interface UserUseCases{
   create: (user: User) => Promise<void>;
-  findAll: (args: Object) => Promise<User[]>;
-  findById: (id: String) => Promise<User>;
+  findMany: (args: Object) => Promise<User[]>;
+  findUnique: (args: Object) => Promise<User>;
   update: (user: User) => Promise<void>;
   delete: (id: String) => Promise<void>;
 }

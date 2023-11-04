@@ -1,7 +1,7 @@
 import User from '../../core/entity/User'
 import UserUseCases from '../../core/usecases/UserUseCases';
 import { UserUpdaterDTO } from '../dtos/UserDTO';
-import IDatabaseContext, { FindMany } from '../context/IDatabaseContext'
+import IDatabaseContext, { FindMany, FindUnique } from '../context/IDatabaseContext'
 
 const TableName = "User"
 
@@ -22,12 +22,12 @@ class UserRepository implements UserUseCases{
     })
   }
 
-  async findAll(args: FindMany): Promise<User[]>{ 
+  async findMany(args: FindMany): Promise<User[]>{ 
     return await this.database.findMany(TableName, args) as User[];
   }
 
-  async findById(id: String): Promise<User>{
-    return await this.database.findUnique("Cifra", { where: { id } }) as User;
+  async findUnique(args: FindMany): Promise<User>{ 
+    return await this.database.findMany(TableName, args) as User;
   }
 
   async update(user: UserUpdaterDTO): Promise<void>{
