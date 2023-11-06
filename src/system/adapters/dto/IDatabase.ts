@@ -15,7 +15,7 @@ export interface FindMany{
   where?: Object,
   order?: Order,
   take?: number,
-  skip?: number
+  skip?: number 
 }
 
 export interface Update{
@@ -29,8 +29,8 @@ export interface Delete{
 
 export default interface Database {
   create(table: String, args: Create): Promise<Object>;
-  findUnique(table: String, args: FindUnique): Promise<Object>;
   findMany(table: String, args: FindMany): Promise<Object>;
+  findUnique(table: String, args: FindUnique): Promise<Object>;
   update(table: String, args: Update): Promise<Object>;
   delete(table: String, args: Delete): Promise<Object>;
 }

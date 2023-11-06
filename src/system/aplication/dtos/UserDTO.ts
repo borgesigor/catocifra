@@ -16,3 +16,8 @@ export interface UserDeleterDTO{
   username: String,
   password: String
 }
+
+export interface UserLoginDTO{
+  username: String,
+  password: String
+}

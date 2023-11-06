@@ -1,4 +1,5 @@
-import { Client } from 'pg'
+import escaper from './helpers/escaper'
+import { Client, Pool } from 'pg'
 import IDatabase, { Create, Delete, FindMany, FindUnique, Update } from './dto/IDatabase'
 
 const dbOptions = {
@@ -10,132 +11,83 @@ const dbOptions = {
 }
 
 class DatabaseAdapter implements IDatabase{
-  private db: Client
+  private db: Client;
 
   constructor() {
-    this.db = new Client(dbOptions)
-  }
-
-  private escape(escape: Object){
-    let keys = Object.keys(escape);
-    let values = Object.values(escape);
-
-    let keysMap = keys.map(e => {
-      return this.db.escapeIdentifier(e)
-    }).join(', ')
-  
-    let valuesMap = values.map(e => {
-      return this.db.escapeLiteral(e)
-    }).join(', ')
-
-    let translate = Object.entries(escape).map(([key, value]) => `"${key}"='${value}'`).join(' AND ');
-    let translate2 = Object.entries(escape).map(([key, value]) => `"${key}"='${value}'`).join(', ');
-
-    return {
-      key: keysMap,
-      value: valuesMap,
-      translate: translate,
-      translate2: translate2
-    }
+    this.db = new Client(dbOptions);
+    this.db.connect();
   }
 
   async create(table: String, data: Create): Promise<Object> {
-    await this.db.connect();
-    const columns = this.escape(data.data).key;
-    const values = this.escape(data.data).value;
+    const columns = escaper(data.data).key;
+    const values = escaper(data.data).value;
     const query = `INSERT INTO "${table}"(${columns}) VALUES (${values})`;
     
-    return await this.db.query(query)
-    .then((res)=>{
-      return {
-        length: res.rowCount,
-        data: res.rows
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      return false
-    })
-    .finally(()=>{ this.db.end() })
+    try {
+      const result = await this.db.query(query)
+      return result.rows
+    } catch (error) {
+      throw error
+    }
   }
 
-  async findUnique(table: String, args: FindUnique): Promise<Object> {
-    await this.db.connect();
-    const where = this.escape(args.where).translate;
-    const query = `SELECT * FROM "${table}" WHERE ${where} LIMIT 1`;
-
-    return await this.db.query(query)
-    .then((res)=>{
-      return {
-        length: res.rowCount,
-        data: res.rows
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      return false
-    })
-    .finally(()=>{ this.db.end() })
-  }
-
-  async findMany(table: String, args: FindMany): Promise<Object> {
-    await this.db.connect()
-    const where = args.where ? `WHERE ${this.escape(args.where).translate}` : "";
+  async findMany(table: String, args?: FindMany): Promise<Object> {
+    if(!args) { 
+      args = {} 
+    }
+    const where = args.where ? `WHERE ${escaper(args.where).translate}` : "";
     const order = args.order ? `ORDER BY ${args.order.by} ${args.order.direction || 'DESC'}` : "";
     const paginator = args.take ? `LIMIT ${args.take} OFFSET ${args.take * (args.skip || 0)};` : "";
     const query = `SELECT * FROM "${table}" ${where} ${order} ${paginator}`;
 
-    return await this.db.query(query)
-    .then((res)=>{
-      return {
-        length: res.rowCount,
-        data: res.rows
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      return false
-    })
-    .finally(()=>{ this.db.end() })
+    try {
+      const result = await this.db.query(query)
+      return result.rows
+    } catch (error) {
+      throw error
+    }
   }
+
+  async findUnique(table: String, args: FindUnique): Promise<Object> {
+    const where = escaper(args.where).translate;
+    const query = `SELECT * FROM "${table}" WHERE ${where} LIMIT 1`;
+
+    try {
+      const result = await this.db.query(query)
+      if(result.rowCount > 0){
+        return result.rows[0]
+      }else{
+        return false
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
   
   async update(table: String, args: Update): Promise<Object> {
-    await this.db.connect()
-    const data = this.escape(args.data).translate2
-    const where = this.escape(args.where).translate
+    const data = escaper(args.data).translate2
+    const where = escaper(args.where).translate
     const query = `UPDATE "${table}" SET ${data} WHERE ${where}`
 
-    return await this.db.query(query)
-    .then((res)=>{
-      return {
-        length: res.rowCount,
-        data: res.rows
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      return false
-    })
-    .finally(()=>{ this.db.end() })
+    try {
+      const result = await this.db.query(query)
+      return result.rows
+    } catch (error) {
+      throw error
+    }
   }
 
   async delete(table: String, args: Delete): Promise<Object> {
-    await this.db.connect()
-    const where = this.escape(args.where).translate
+    const where = escaper(args.where).translate
     const query = `DELETE FROM "${table}" WHERE ${where}`
 
-    return await this.db.query(query)
-    .then((res)=>{
-      return {
-        length: res.rowCount,
-        data: res.rows
-      }
-    })
-    .catch((err)=>{
-      console.log(err)
-      return false
-    })
-    .finally(()=>{ this.db.end() })
+    try {
+      const result = await this.db.query(query)
+      return result.rows
+    } catch (error) {
+      throw error
+    }
   }
 }
 

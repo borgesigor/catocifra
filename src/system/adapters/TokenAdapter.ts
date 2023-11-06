@@ -1,23 +1,14 @@
 import jwt from 'jsonwebtoken';
-import { ITokenContext } from '../aplication/context/ITokenContext';
+import { ITokenContextForAdapter } from '../aplication/context/ITokenContext';
 
 const secretKey: string = "igorlindo&rico"
 
-interface TokenOptions{
-  expiresIn: string
-}
-
-interface Payload{
-  id: String,
-  username: String
-}
-
 export default class TokenAdapter{
-  private token: ITokenContext = jwt
+  private token: ITokenContextForAdapter = jwt
 
-  sign(payload: Payload, options?: TokenOptions){
+  sign(payload: Object){
     return this.token.sign(payload, secretKey, {
-      expiresIn: options?.expiresIn || '1h'
+      expiresIn: '1d'
     })
   }
 

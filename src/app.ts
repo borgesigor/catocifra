@@ -1,20 +1,29 @@
-// // import Server from './api/server/Server'
-// import Teste from './testes/CifraTests' 
+// import UserService from "./system/infraestructure/service/UserService";
 
-// const server = new Teste()
-// server.dbTeste()
-// server.start()
+// const user = new UserService()
 
-// import CifraService from "./system/infraestructure/service/CifraService";
-// import DatabaseAdapter from "./system/adapters/DatabaseAdapter";
-// import UUIDGeneratorAdapter from "./system/adapters/UUIDGenerator";
+// function gerarCodigoAleatorio() {
+//   const caracteresPermitidos = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//   let codigo = '';
 
-// const cifra = new CifraService(new UUIDGeneratorAdapter(), new DatabaseAdapter())
+//   for (let i = 0; i < 20; i++) {
+//     const indiceAleatorio = Math.floor(Math.random() * caracteresPermitidos.length);
+//     codigo += caracteresPermitidos.charAt(indiceAleatorio);
+//   }
 
-import TokenAdapter from "./system/adapters/TokenAdapter";
+//   return codigo;
+// }
 
-let sign = new TokenAdapter().sign({ id: '2323223', username: 'igorblima' })
-let verify = new TokenAdapter().decode(sign)
+// async function teste(u: String) {
+//   try{
+//     await user.register({
+//       username: `qFfnZvDRBfDQdlyTPs2R`,
+//       password: 'teste',
+//       img: 'teste'
+//     })
+//   }catch(err){
+//     console.log(err)
+//   }
+// }
 
-console.log(sign)
-console.log(verify)
+// teste("user")

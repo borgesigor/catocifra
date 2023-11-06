@@ -1,5 +1,5 @@
 {
-  "name": "CatoCifra System",
+  "name": "CatoCifra",
   "version": "1.0.0",
   "description": "",
   "main": "./src/app.js",
@@ -11,6 +11,7 @@
   "author": "Igor Borges",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.5.2",
     "@types/jsonwebtoken": "^9.0.4",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.3",

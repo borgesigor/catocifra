@@ -1,23 +1,25 @@
-import UserRepository from "../../aplication/repository/UserRepository";
-import IUUIDContext from "../../aplication/context/IUUIDContext";
 import IDatabaseContext from "../../aplication/context/IDatabaseContext";
-import { UserCreatorDTO, UserUpdaterDTO, UserDeleterDTO } from "../../aplication/dtos/UserDTO";
-import { ITokenContext } from "../../aplication/context/ITokenContext";
+import IUUIDContext from "../../aplication/context/IUUIDContext";
+import ITokenContext from "../../aplication/context/ITokenContext";
+import UserRepository from "../../aplication/repository/UserRepository";
+
+import { UserCreatorDTO, UserUpdaterDTO, UserDeleterDTO, UserLoginDTO } from "../../aplication/dtos/UserDTO";
 
 export default class UserService{
   constructor(
+    private database: IDatabaseContext,
     private uuid: IUUIDContext,
-    private database: IDatabaseContext
+    private token: ITokenContext,
   ){}
 
   private user: UserRepository = new UserRepository(this.database);
 
   async register(user: UserCreatorDTO){
-    if(typeof this.getUserByUsername == "undefined"){
-      throw new Error("Já existe um usuário com este username")
+    if(await this.getUserByUsername(user.username)){
+      return new Error("Este nome de usuário já existe")
     }
 
-    this.user.create({
+    return this.user.create({
       id: this.uuid.generate(),
       img: user.img,
       username: user.username,
@@ -26,7 +28,29 @@ export default class UserService{
     });
   }
 
+  async login(user: UserLoginDTO){
+    const userSearch = await this.getUserByUsername(user.username)
+
+    if(!userSearch){
+      return new Error(`Nome de usuário inválido`)
+    }
+
+    if(userSearch.password !== user.password){
+      return new Error(`Senha inválida`)
+    }
+
+    const token = this.token.sign({
+      username: user.username
+    })
+
+    return token
+  }
+
   async update(user: UserUpdaterDTO){
+    if(await this.getUserById(user.id)){
+      return new Error("Este usuário não existe")
+    }
+
     this.user.update({
       id: this.uuid.generate(),
       img: user.img,
@@ -36,12 +60,23 @@ export default class UserService{
   }
 
   async delete(user: UserDeleterDTO){
-    // checagens
+    if(await this.getUserById(user.id)){
+      return new Error("Este usuário não existe")
+    }
+
     this.user.delete(user.id);
   }
 
+  async getUserById(id: String){
+    return await this.user.findUnique({
+      where: {
+        id: id
+      }
+    })
+  }
+
   async getUserByUsername(username: String){
-    return this.user.findUnique({
+    return await this.user.findUnique({
       where: {
         username: username
       }
