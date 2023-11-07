@@ -11,7 +11,7 @@ export interface UserUpdaterDTO{
   password: String
 }
 
-export interface UserDeleterDTO{
+export interface UserDeleteDTO{
   id: String,
   username: String,
   password: String
@@ -20,4 +20,9 @@ export interface UserDeleterDTO{
 export interface UserLoginDTO{
   username: String,
   password: String
+}
+
+export interface UserPresenterDTO{
+  img: String,
+  username: String
 }

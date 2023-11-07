@@ -1,2 +1,0 @@
-import scrapper from 'puppeteer';
-

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
-import { ITokenContextForAdapter } from '../aplication/context/ITokenContext';
+import { ITokenContextForAdapter } from '../../aplication/context/ITokenContext';
 
 const secretKey: string = "igorlindo&rico"
 
 export default class TokenAdapter{
-  private token: ITokenContextForAdapter = jwt
+  private token: ITokenContextForAdapter = jwt;
 
   sign(payload: Object){
     return this.token.sign(payload, secretKey, {
