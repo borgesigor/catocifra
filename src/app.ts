@@ -12,20 +12,16 @@ function gerarCodigoAleatorio() {
   return codigo;
 }
 
-async function teste() {
-  try{
+
+async function teste(){
+  try {
     const user = new UserService()
-    const criar = await user.register({
-      img: 'random-img',
-      username: `${gerarCodigoAleatorio()}`,
-      password: '212132'
-    })
-    console.log(criar)
-  }catch(err: any){
-    console.log("Main: "+ err)
+    // await user.register({img: 'random', username: 'ibl', password: '212132'})
+    let teste = await user.login({username: 'ibl', password: '212132'})
+    console.log(teste)
+  } catch (error) {
+    console.log(error)
   }
-  
 }
 
 teste()
-

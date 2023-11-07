@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { ITokenContextForAdapter } from '../../aplication/context/ITokenContext';
+import { ITokenContextForAdapter } from '../../shared/context/ITokenContext';
 
 const secretKey: string = "igorlindo&rico"
 

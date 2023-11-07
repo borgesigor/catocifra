@@ -15,16 +15,9 @@ export class UserUsernameAlreadyExists extends Error{
   }
 }
 
-export class UserWithThisUsernameNotExists extends Error{
-  constructor(){
-    super("O Usuário com este username não existe.")
-    this.name = "UserWithThisUsernameNotExists"
-  }
-}
-
 export class UserPasswordDontMatch extends Error{
   constructor(){
-    super("A Senha não corresponde à esta conta.")
+    super("Senha incorreta.")
     this.name = "UserPasswordDontMatch"
   }
 }

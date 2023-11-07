@@ -1,100 +1,115 @@
 import DatabaseAdapter from "../adapters/DatabaseAdapter";
 import UUIDGeneratorAdapter from "../adapters/UUIDGenerator";
-import TokenAdapter from "../adapters/TokenAdapter";
 import UserRepository from "../../aplication/repository/UserRepository";
-import PasswordHashAdapter from "../adapters/PasswordHashAdapter";
+import AuthService from "./AuthService";
 
 import { 
   UserCreatorDTO, 
   UserUpdaterDTO, 
   UserDeleteDTO, 
-  UserLoginDTO 
-} from "../../aplication/dtos/UserDTO";
+  UserLoginDTO,
+  PermissionVerificationDTO,
+  UserPresenterDTO
+} from "../../shared/dtos/UserDTO";
 
 import { 
   UserUsernameAlreadyExists, 
-  UserWithThisUsernameNotExists, 
   UserPasswordDontMatch,
-  UserDoesntExist
-} from "../errorHandlers/Errors";
+  UserDoesntExist,
+  UnexpectedError
+} from "../../shared/errorHandlers/Errors";
 
 export default class UserService{
   private database: DatabaseAdapter = new DatabaseAdapter();
   private uuid: UUIDGeneratorAdapter = new UUIDGeneratorAdapter();
-  private token: TokenAdapter = new TokenAdapter();
-  private passwordHash: PasswordHashAdapter = new PasswordHashAdapter();
   private user: UserRepository = new UserRepository(this.database);
+  private auth: AuthService = new AuthService(this.database);
 
-  async register(user: UserCreatorDTO){
-    if(await this.getUserByUsername(user.username)){
-      throw new UserUsernameAlreadyExists()
-    }
+  // Privados
 
-    const hashPassword = await this.passwordHash.hash(user.password)
-
-    const result = await this.user.create({
-      id: this.uuid.generate(),
-      img: user.img,
-      username: user.username,
-      password: new String(hashPassword),
-      createdAt: new Date().toISOString()
+  private async getUserSecretInfoByUsername(username: String){
+    const result = await this.user.findUnique({
+      where: {
+        username: username
+      }
     })
 
     return result
   }
 
-  async login(user: UserLoginDTO){
-    const userSearch = await this.getUserByUsername(user.username)
-
-    if(!userSearch){
-      throw new UserWithThisUsernameNotExists();
-    }
-
-    if(!(userSearch.password == user.password)){
-      throw new UserPasswordDontMatch();
-    }
-
-    const token = this.token.sign({
-      username: user.username
-    })
-
-    return token
-  }
-
-  async update(user: UserUpdaterDTO){
-    if(await this.getUserById(user.id)){
-      return new UserDoesntExist()
-    }
-
-    this.user.update({
-      id: this.uuid.generate(),
-      img: user.img,
-      username: user.username,
-      password: user.password
-    })
-  }
-
-  async delete(user: UserDeleteDTO){
-    if(await this.getUserById(user.id)){
-      return new UserDoesntExist()
-    }
-
-    this.user.delete(user.id);
-  }
-
-  async getUserById(id: String){
-    return await this.user.findUnique({
+  private async getUserSecretInfoById(id: String){
+    const result = await this.user.findUnique({
       where: {
         id: id
       }
     })
+
+    return result
   }
 
-  async getUserByUsername(username: String){
-    return await this.user.findUnique({
+  // Publicos
+
+  public async register(user: UserCreatorDTO): Promise<UserPresenterDTO | []>{
+    return this.auth.register(user, this.uuid.generate());
+  }
+
+  public async login(user: UserLoginDTO){
+    return this.auth.login(user);
+  }
+
+  public async update(user: UserUpdaterDTO){
+    
+  }
+
+  public async delete(user: UserDeleteDTO){
+    // const userSearch = await this.getUserSecretInfoByUsername(user.username)
+    
+    // if(!userSearch){
+    //   throw new UserDoesntExist()
+    // }
+
+    // if(!this.passwordHash.compare(userSearch.password, user.password)){
+    //   throw new UserPasswordDontMatch();
+    // }
+
+    // this.user.delete(user.id);
+  }
+
+  public async getUserById(id: String): Promise<UserPresenterDTO>{
+    const result = await this.user.findUnique({
+      where: {
+        id: id
+      }
+    })
+
+    if(!result){
+      throw new UserDoesntExist()
+    }
+
+    return {
+      img: result.img,
+      username: result.username
+    }
+  }
+
+  async getUserByUsername(username: String): Promise<UserPresenterDTO>{
+    const result = await this.user.findUnique({
       where: {
         username: username
       }
     })
+
+    if(!result){
+      throw new UserDoesntExist();
+    }
+
+    return {
+      img: result.img,
+      username: result.username
+    }
+  }
+
+  async getAllUsers(userPermission: PermissionVerificationDTO){
+    
   }
 }

@@ -1,8 +1,7 @@
 import User from '../../core/entity/User'
 import UserUseCases from '../../core/usecases/UserUseCases';
-import IDatabaseContext, { FindMany, FindUnique } from '../context/IDatabaseContext'
-import { UserUpdaterDTO, UserPresenterDTO } from '../dtos/UserDTO';
-import { UnexpectedError } from '../../infraestructure/errorHandlers/Errors';
+import IDatabaseContext, { FindMany, FindUnique } from '../../shared/context/IDatabaseContext'
+import { UnexpectedError } from '../../shared/errorHandlers/Errors';
 
 const TableName = "User"
 
@@ -27,21 +26,18 @@ class UserRepository implements UserUseCases{
   }
 
   async findMany(args: FindMany): Promise<User[]>{ 
-    const result = await this.database.findMany(TableName, args).catch((err)=>{
+    return await this.database.findMany(TableName, args).catch((err)=>{
       throw new UnexpectedError(err)
-    })
-    return result as User[];
+    }) as User[];
   }
 
   async findUnique(args: FindUnique): Promise<User>{ 
-    const result = await this.database.findUnique(TableName, args).catch((err)=>{
+    return await this.database.findUnique(TableName, args).catch((err)=>{
       throw new UnexpectedError(err)
-    })
-
-    return result as User;
+    }) as User;
   }
 
-  async update(user: UserUpdaterDTO): Promise<Object>{
+  async update(user: User): Promise<Object>{
     return await this.database.update(TableName, {
       where: {
         id: user.id
