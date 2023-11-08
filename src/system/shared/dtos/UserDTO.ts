@@ -1,3 +1,5 @@
+import User from "../../core/entity/User"
+
 export interface UserCreatorDTO{
   img: String,
   username: String,
@@ -6,27 +8,35 @@ export interface UserCreatorDTO{
 
 export interface UserLoginDTO{
   username: String,
-  password: String
+  password: String,
+}
+
+interface VerificationUpdate{
+  id: String,
+  token: String,
+}
+
+interface DataUpdate{
+  img?: String,
+  username?: String,
+  password?: String,
+  isAdmin?: Boolean,
 }
 
 export interface UserUpdaterDTO{
-  id: String,
-  img: String,
-  username: String,
-  token: String
+  verification: VerificationUpdate,
+  data: DataUpdate
 }
 
 export interface UserDeleteDTO{
   id: String,
-  username: String,
-  token: String
+  token: String,
 }
 
 export interface UserPresenterDTO{
-  img: String,
-  username: String
-}
-
-export interface PermissionVerificationDTO{
-  token: String
+  id: String,
+  username?: String,
+  img?: String,
+  createdAt?: String
+  isAdmin?: Boolean,
 }

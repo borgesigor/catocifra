@@ -5,15 +5,29 @@ import IDatabaseContext from "../../shared/context/IDatabaseContext";
 
 import { 
   UserLoginDTO,
-  UserCreatorDTO,
-  UserPresenterDTO
+  UserCreatorDTO
 } from "../../shared/dtos/UserDTO";
 
 import { 
   UserPasswordDontMatch,
   UserDoesntExist,
-  UserUsernameAlreadyExists
+  UserUsernameAlreadyExists,
+  TokenIsntValid,
+  UnexpectedError
 } from "../../shared/errorHandlers/Errors";
+
+interface RegisterPresenter{
+  id: String,
+  username: String,
+  createdAt: String
+}
+
+interface LoginPresenter{
+  id: String,
+  username: String
+  token: String,
+  createdAt: String
+}
 
 export default class AuthService{
   constructor(
@@ -34,14 +48,6 @@ export default class AuthService{
     return result
   }
 
-  private async generateUserToken(username: String){
-    const token = this.token.sign({
-      username: username
-    })
-
-    return token
-  }
-
   private async tryLogin(user: UserLoginDTO){
     const userSearch = await this.getUserSecretInfoByUsername(user.username)
 
@@ -55,33 +61,65 @@ export default class AuthService{
       throw new UserPasswordDontMatch();
     }
     
-    return true
+    return userSearch
   }
 
-  public async register(user: UserCreatorDTO, uuid: String): Promise<UserPresenterDTO | []>{
+  // 
+
+  public async verifyAndDecodeToken(token: String){
+    if(!await this.token.isValid(token)){
+      throw new TokenIsntValid()
+    }
+
+    return await this.token.decode(token)
+  }
+
+  public async register(user: UserCreatorDTO, uuid: String): Promise<RegisterPresenter>{
+
     if(await this.getUserSecretInfoByUsername(user.username)){
       throw new UserUsernameAlreadyExists()
     }
 
     const hashPassword = await this.passwordHash.hash(user.password)
+    const date = new Date().toISOString()
 
-    const result = await this.user.create({
+    await this.user.create({
       id: uuid,
       img: user.img,
       username: user.username,
-      password: new String(hashPassword),
-      createdAt: new Date().toISOString()
+      password: hashPassword,
+      createdAt: date,
+      isAdmin: false
     })
 
-    return result as []
+    return {
+      id: uuid,
+      username: user.username,
+      createdAt: date
+    }
+
   }
 
-  public async login(user: UserLoginDTO){
-    if(await this.tryLogin(user)){
-      return {
-        user: user.username,
-        token: await this.generateUserToken(user.username)
-      }
+  public async login(user: UserLoginDTO): Promise<LoginPresenter>{
+    
+    const tryLogin = await this.tryLogin(user)
+
+    if(!tryLogin){
+      throw new UnexpectedError("login")
     }
+
+    const generateToken = await this.token.sign({
+      id: tryLogin.id,
+      username: user.username,
+      isAdmin: tryLogin.isAdmin
+    })
+
+    return {
+      id: tryLogin.id,
+      username: tryLogin.username,
+      token: generateToken,
+      createdAt: tryLogin.createdAt
+    }
+
   }
 }

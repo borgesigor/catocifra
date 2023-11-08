@@ -17,12 +17,12 @@ interface IResult{
 }
 
 interface IClient{
-  query(query: String): Promise<IResult>
+  query(query: String, values?: any): Promise<IResult>
   connect(): Promise<void>
 }
 
 class DatabaseAdapter implements IDatabase{
-  private db: IClient = new Client(dbOptions);
+  private db: Client = new Client(dbOptions);
 
   constructor(){
     this.db.connect().catch((err)=>{
@@ -30,27 +30,52 @@ class DatabaseAdapter implements IDatabase{
     })
   }
 
-  async create(table: String, data: Create): Promise<Object> {
-    const columns = escaper(data.data).key;
-    const values = escaper(data.data).value;
+  async create(table: String, args: Create): Promise<Object> {
+    let [dataKeys, dataValues] = [Object.keys(args.data), Object.values(args.data)]
 
-    const query = `INSERT INTO "${table}"(${columns}) VALUES (${values})`;
-    
-    const result = await this.db.query(query).catch((err)=>{
-      throw new UnexpectedError(err)
+    let values = dataKeys.map((e, index)=>{
+      return `$${index+1}`
     })
 
-    return result.rows
+    const updatedDataKeys = dataKeys.map(e => `"${e}"`).join(', ');
+
+    const query = {
+      text: `INSERT INTO "${table}"(${updatedDataKeys}) VALUES (${values})`,
+      values: dataValues
+    }
+
+    return await this.db.query(query).catch((err)=>{
+      throw new UnexpectedError(err)
+    })
   }
 
   async findMany(table: String, args?: FindMany): Promise<Object> {
-    if(!args) { args = {} }
+    let where = ""
+    let order = ""
+    let paginator = "LIMIT 20"
+    let whereDataValues = []
 
-    const where = args.where ? `WHERE ${escaper(args.where).translateWithAnd}` : "";
-    const order = args.order ? `ORDER BY ${args.order.by} ${args.order.direction || 'DESC'}` : "";
-    const paginator = args.take ? `LIMIT ${args.take} OFFSET ${args.take * (args.skip || 0)};` : "";
+    if(args?.where){
+      let [whereKeys, whereData] = [Object.keys(args.where), Object.values(args.where)]
+      const updatedWhereKeys = whereKeys.map((key, index) => `"${key}"=$${index + 1}`).join(" AND ");
+      where = `WHERE ${updatedWhereKeys}`
+      whereDataValues = whereData
+    }
 
-    const query = `SELECT * FROM "${table}" ${where} ${order} ${paginator}`;
+    if(args?.order){
+      let [orderKeys, orderData] = [args.order.by, args.order.direction]
+      order = `ORDER BY "${orderKeys}" ${args.order.direction || 'DESC'}`
+    }
+
+    if(args?.take){
+      if(args.take > 50){ args.take = 50 }
+      paginator = `LIMIT ${args.take || ""} OFFSET ${args.take * (args.skip || 0)}`;
+    }
+
+    const query = {
+      text: `SELECT * FROM "${table}" ${where} ${order} ${paginator}`,
+      values: whereDataValues
+    }
 
     const result = await this.db.query(query).catch((err)=>{
       throw new UnexpectedError(err)
@@ -60,8 +85,15 @@ class DatabaseAdapter implements IDatabase{
   }
 
   async findUnique(table: String, args: FindUnique): Promise<Object> {
-    const where = `WHERE ${escaper(args.where).translateWithAnd}`;
-    const query = `SELECT * FROM "${table}" ${where} LIMIT 1`;
+
+    let [whereKeys, whereData] = [Object.keys(args.where), Object.values(args.where)]
+
+    const updatedWhereKeys = whereKeys.map((key, index) => `"${key}"=$${index + 1}`).join(" AND ");
+
+    const query = {
+      text: `SELECT * FROM "${table}" WHERE ${updatedWhereKeys}`,
+      values: whereData
+    }
 
     const result = await this.db.query(query).catch((err)=>{
       throw new UnexpectedError(err)
@@ -71,10 +103,18 @@ class DatabaseAdapter implements IDatabase{
   }
   
   async update(table: String, args: Update): Promise<Object> {
-    const data = escaper(args.data).translateWithVirgula;
-    const where = escaper(args.where).translateWithAnd;
 
-    const query = `UPDATE "${table}" SET ${data} WHERE ${where}`
+    let [dataKeys, dataValues] = [Object.keys(args.data), Object.values(args.data)]
+    let [whereKeys, whereData] = [Object.keys(args.where), Object.values(args.where)]
+
+    const updatedDataKeys = dataKeys.map((key, index) => `"${key}"=$${index + 1}`).join(', ');
+    const updatedWhereKeys = whereKeys.map((key, index) => `"${key}"=$${dataKeys.length + index + 1}`).join(" AND ");
+    const values = [...dataValues, ...whereData]
+
+    const query = {
+      text: `UPDATE "${table}" SET ${updatedDataKeys} WHERE ${updatedWhereKeys}`,
+      values
+    }
 
     return await this.db.query(query).catch((err)=>{
       throw new UnexpectedError(err)
@@ -82,9 +122,14 @@ class DatabaseAdapter implements IDatabase{
   }
 
   async delete(table: String, args: Delete): Promise<Object> {
-    const where = escaper(args.where).translateWithAnd;
+    let [whereKeys, whereData] = [Object.keys(args.where), Object.values(args.where)]
 
-    const query = `DELETE FROM "${table}" WHERE ${where}`
+    const updatedWhereKeys = whereKeys.map((key, index) => `"${key}"=$${index + 1}`).join(" AND ");
+
+    const query = {
+      text: `DELETE FROM "${table}" WHERE ${updatedWhereKeys}`,
+      values: whereData
+    }
 
     return await this.db.query(query).catch((err)=>{
       throw new UnexpectedError(err)

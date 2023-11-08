@@ -1,9 +1,18 @@
 import User from '../../core/entity/User'
 import UserUseCases from '../../core/usecases/UserUseCases';
 import IDatabaseContext, { FindMany, FindUnique } from '../../shared/context/IDatabaseContext'
+import { UserUpdaterDTO } from '../../shared/dtos/UserDTO';
 import { UnexpectedError } from '../../shared/errorHandlers/Errors';
 
 const TableName = "User"
+
+interface UpdaterDTO{
+  id: String,
+  username?: String,
+  password?: String,
+  img?: String,
+  isAdmin?: Boolean
+}
 
 class UserRepository implements UserUseCases{
   constructor(
@@ -12,13 +21,7 @@ class UserRepository implements UserUseCases{
 
   async create(user: User): Promise<Object>{
     return await this.database.create(TableName, {
-      data: {
-        id: user.id,
-        img: user.img,
-        username: user.username,
-        password: user.password,
-        createdAt: user.createdAt
-      }
+      data: user
     })
     .catch((err)=>{
       throw new UnexpectedError(err)
@@ -37,15 +40,22 @@ class UserRepository implements UserUseCases{
     }) as User;
   }
 
-  async update(user: User): Promise<Object>{
+  async update(user: UpdaterDTO): Promise<Object>{
+    const findById = await this.findUnique({
+      where: {
+        id: user.id
+      }
+    })
+
     return await this.database.update(TableName, {
       where: {
         id: user.id
       },
       data: {
-        img: user.img,
-        username: user.username,
-        password: user.password
+        img: user.img || findById.img,
+        username: user.username || findById.username,
+        password: user.password || findById.password,
+        isAdmin: user.isAdmin || findById.isAdmin,
       }
     })
     .catch((err)=>{

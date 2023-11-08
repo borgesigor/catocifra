@@ -10,20 +10,23 @@ function escapeLiteral(text: string) {
 }
 
 export default function escaper(escape: Object){
-  let keys = Object.keys(escape);
-  let values = Object.values(escape);
+  let [keys, values] = [Object.keys(escape), Object.values(escape)]
 
   let keysMap = keys.map(e => {
-    return escapeIdentifier(e)
+    return e
   }).join(', ')
 
   let valuesMap = values.map(e => {
-    return escapeLiteral(e)
+    return e
   }).join(', ')
 
   let translateWithAnd = Object.entries(escape).map(([key, value]) => `${escapeIdentifier(key)}=${escapeLiteral(value)}`).join(' AND ');
   let translateWithVirgula = Object.entries(escape).map(([key, value]) => `${escapeIdentifier(key)}=${escapeLiteral(value)}`).join(', ');
-
+  let withCounter = Object.entries(escape).map(([key, value]) => {
+  })
+  
+  console.log(withCounter.length)
+  
   return {
     key: keysMap,
     value: valuesMap,

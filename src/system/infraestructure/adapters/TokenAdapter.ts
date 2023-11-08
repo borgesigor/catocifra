@@ -6,22 +6,22 @@ const secretKey: string = "igorlindo&rico"
 export default class TokenAdapter{
   private token: ITokenContextForAdapter = jwt;
 
-  sign(payload: Object){
-    return this.token.sign(payload, secretKey, {
+  async sign(payload: Object){
+    return await this.token.sign(payload, secretKey, {
       expiresIn: '1d'
     })
   }
 
-  verify(token: string){
+  async isValid(token: String){
     try{
-      this.token.verify(token, secretKey)
+      await this.token.verify(token.toString(), secretKey)
       return true
     }catch(err){
       return false
     }
   }
 
-  decode(token: string){
-    return this.token.decode(token)
+  async decode(token: String){
+    return await this.token.decode(token.toString())
   }
 }

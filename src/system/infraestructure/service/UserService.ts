@@ -8,15 +8,12 @@ import {
   UserUpdaterDTO, 
   UserDeleteDTO, 
   UserLoginDTO,
-  PermissionVerificationDTO,
   UserPresenterDTO
 } from "../../shared/dtos/UserDTO";
 
-import { 
-  UserUsernameAlreadyExists, 
-  UserPasswordDontMatch,
+import {
   UserDoesntExist,
-  UnexpectedError
+  DoNotHavePermission,
 } from "../../shared/errorHandlers/Errors";
 
 export default class UserService{
@@ -25,57 +22,57 @@ export default class UserService{
   private user: UserRepository = new UserRepository(this.database);
   private auth: AuthService = new AuthService(this.database);
 
-  // Privados
-
-  private async getUserSecretInfoByUsername(username: String){
-    const result = await this.user.findUnique({
-      where: {
-        username: username
-      }
-    })
-
-    return result
-  }
-
-  private async getUserSecretInfoById(id: String){
-    const result = await this.user.findUnique({
-      where: {
-        id: id
-      }
-    })
-
-    return result
-  }
-
-  // Publicos
-
-  public async register(user: UserCreatorDTO): Promise<UserPresenterDTO | []>{
-    return this.auth.register(user, this.uuid.generate());
+  public async register(user: UserCreatorDTO){
+    return await this.auth.register(user, this.uuid.generate());
   }
 
   public async login(user: UserLoginDTO){
-    return this.auth.login(user);
+    return await this.auth.login(user);
   }
 
-  public async update(user: UserUpdaterDTO){
+  public async recoveryPassword(){
     
   }
 
-  public async delete(user: UserDeleteDTO){
-    // const userSearch = await this.getUserSecretInfoByUsername(user.username)
-    
-    // if(!userSearch){
-    //   throw new UserDoesntExist()
-    // }
+  public async update(data: UserUpdaterDTO): Promise<UserPresenterDTO>{
 
-    // if(!this.passwordHash.compare(userSearch.password, user.password)){
-    //   throw new UserPasswordDontMatch();
-    // }
+    const decodeToken = await this.auth.verifyAndDecodeToken(data.verification.token);
+    const getDataById = await this.getUserById(data.verification.id)
 
-    // this.user.delete(user.id);
+    if(!(decodeToken.id == data.verification.id)){
+      throw new DoNotHavePermission()
+    }
+
+    await this.user.update({
+      id: data.verification.id,
+      username: data.data.username || getDataById.username,
+      img: data.data.img || getDataById.img
+    })
+
+    return {
+      id: getDataById.id
+    }
+
+  }
+
+  public async delete(user: UserDeleteDTO): Promise<UserPresenterDTO>{
+
+    const decodeToken = await this.auth.verifyAndDecodeToken(user.token);
+
+    if(!(decodeToken.id == user.id)){
+      throw new DoNotHavePermission()
+    }
+
+    await this.user.delete(user.id)
+
+    return {
+      id: user.id
+    }
+
   }
 
   public async getUserById(id: String): Promise<UserPresenterDTO>{
+
     const result = await this.user.findUnique({
       where: {
         id: id
@@ -87,12 +84,17 @@ export default class UserService{
     }
 
     return {
+      id: result.id,
+      username: result.username,
       img: result.img,
-      username: result.username
+      createdAt: result.createdAt,
+      isAdmin: result.isAdmin
     }
+
   }
 
   async getUserByUsername(username: String): Promise<UserPresenterDTO>{
+
     const result = await this.user.findUnique({
       where: {
         username: username
@@ -104,12 +106,12 @@ export default class UserService{
     }
 
     return {
+      id: result.id,
+      username: result.username,
       img: result.img,
-      username: result.username
+      createdAt: result.createdAt,
+      isAdmin: result.isAdmin
     }
-  }
 
-  async getAllUsers(userPermission: PermissionVerificationDTO){
-    
   }
 }

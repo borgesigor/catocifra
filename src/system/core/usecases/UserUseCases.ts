@@ -8,7 +8,7 @@ interface UserUseCases{
   create: (user: User) => Promise<Object>;
   findMany: (args: Object) => Promise<User[]>;
   findUnique: (args: FindUnique) => Promise<User>;
-  update: (user: User) => Promise<Object>;
+  update: (user: any) => Promise<Object>;
   delete: (id: String) => Promise<Object>;
 }
 
