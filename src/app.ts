@@ -77,4 +77,4 @@ async function update(){
 // register()
 // login()
 // delete2()
-update()
+// update()

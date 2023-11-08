@@ -7,38 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Genre {
+  id String @id @default(uuid())
+  name String
+  cifras Cifra[]
+}
+
 model User {
-  id        String   @id @default(uuid())
+  id String @id @default(uuid())
   img String
   isAdmin Boolean @default(false)
-  username  String   @unique
-  password  String
-  collection Collection[]
+  username String @unique
+  password String
   createdAt DateTime @default(now())
+  cifras Cifra[]
+  contributions Contributed[]
+  collections Collections[]
+  curtidas Curtidas[]
+  comentarios Comentarios[]
 }
 
 model Cifra {
-  id        String   @id @default(uuid())
-  title     String
-  artist    String
-  content   String
-  createdAt DateTime @default(now())
-  collection CollectionCifras[]
-}
-
-model Collection {
   id String @id @default(uuid())
-  name String
+  title String
+  content String
+  createdAt DateTime @default(now())
+  artistId String
   authorId String
   author User @relation(fields: [authorId], references: [id])
-  cifra CollectionCifras[]
+  genreId String
+  genre Genre @relation(fields: [genreId], references: [id])
+  contributor Contributed[]
+  collections CollectionsCifras[]
+  curtidas Curtidas[]
+  comentarios Comentarios[]
 }
 
-model CollectionCifras {
-  collectionId String
-  collection Collection @relation(fields: [collectionId], references: [id])
+model Contributed {
+  contributorId String
+  contributor User @relation(fields: [contributorId], references: [id])
   cifraId String
   cifra Cifra @relation(fields: [cifraId], references: [id])
+  @@unique([contributorId, cifraId])
+}
 
-  @@unique([collectionId, cifraId])
+model CollectionsCifras {
+  collectionId String
+  collection Collections @relation(fields: [collectionId], references: [id])
+  cifraId String
+  cifra Cifra @relation(fields: [cifraId], references: [id])
+  @@unique([collectionId])
+}
+
+model Collections {
+  id String @id @default(uuid())
+  authorId String
+  author User @relation(fields: [authorId], references: [id])
+  cifras CollectionsCifras[]
+}
+
+model Curtidas {
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  cifraId String?
+  cifra Cifra? @relation(fields: [cifraId], references: [id])
+  comentarioId String?
+  comentario Comentarios? @relation(fields: [comentarioId], references: [id])
+  @@unique([userId])
+}
+
+model Comentarios {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  cifraId String
+  cifra Cifra @relation(fields: [cifraId], references: [id])
+  comentarioPaiId String?
+  createdAt DateTime
+  curtidas Curtidas[]
 }

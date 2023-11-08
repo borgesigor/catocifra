@@ -1,26 +1,55 @@
-// import UserService from '../src/system/infraestructure/service/UserService'
+import UserService from '../src/system/infraestructure/service/UserService'
+const userService = new UserService();
 
-// function gerarCodigoAleatorio() {
-//   const caracteresPermitidos = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//   let codigo = '';
+describe('user service', ()=>{
+  const User = {
+    img: 'coolurlimage',
+    username: 'cooluser',
+    password: 'coolpasword',
+    token: '',
+    id: ''
+  }
 
-//   for (let i = 0; i < 20; i++) {
-//     const indiceAleatorio = Math.floor(Math.random() * caracteresPermitidos.length);
-//     codigo += caracteresPermitidos.charAt(indiceAleatorio);
-//   }
+  it('create user', async ()=>{
+    const result = await userService.register(User)
+    expect(typeof result == "object").toBe(true)
+  })
 
-//   return codigo;
-// }
+  it('login user', async ()=>{
+    const result = await userService.login(User)
+    User.token = result.token.toString();
+    User.id = result.id.toString();
+    expect(typeof result == "object").toBe(true)
+  })
 
-// const userService = new UserService();
+  it('get user by id', async ()=>{
+    const result = await userService.getUserById(User.id)
+    expect(typeof result == "object").toBe(true)
+  })
 
-// // describe('user service', ()=>{
-// //   it('create user', ()=>{
-// //     const register = userService.register({
-// //       img: 'random-img',
-// //       username: `igorblima`,
-// //       password: '212132'
-// //     })
-// //     expect(register).toBe(true)
-// //   })
-// // })
+  it('get user by username', async ()=>{
+    const result = await userService.getUserByUsername(User.username)
+    expect(typeof result == "object").toBe(true)
+  })
+
+  it('update user', async ()=>{
+    const result = await userService.update({
+      verification: {
+        id: User.id,
+        token: User.token
+      },
+      data: {
+        username: 'mynewcoolusername'
+      }
+    })
+    expect(typeof result == "object").toBe(true)
+  })
+
+  it('delete user', async ()=>{
+    const result = await userService.delete({
+      token: User.token,
+      id: User.id
+    })
+    expect(typeof result == "object").toBe(true)
+  })
+})
